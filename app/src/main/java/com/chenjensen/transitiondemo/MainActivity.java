@@ -10,23 +10,27 @@ import android.widget.ImageView;
 import com.chenjensen.transitiondemo.transition.HTTransitionListener;
 import com.chenjensen.transitiondemo.transition.TransitionHelper;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements HTTransitionListener{
 
     ImageView iv;
-    TransitionHelper helper;
+    ArrayList<TransitionHelper> helpers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
-
     }
 
     private void initView(){
         iv = (ImageView)findViewById(R.id.iv);
-        helper = new TransitionHelper();
+
+        helpers = new ArrayList<>();
+        TransitionHelper helper = new TransitionHelper();
         helper.setPreView(iv);
+        helpers.add(helper);
         iv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -39,14 +43,15 @@ public class MainActivity extends AppCompatActivity implements HTTransitionListe
         });
     }
 
+
     @Override
     public void onViewChange() {
 
     }
 
     @Override
-    public TransitionHelper getTransitionHelper() {
-        return helper;
+    public ArrayList<TransitionHelper> getTransitionHelpers() {
+        return helpers;
     }
 
     @Override

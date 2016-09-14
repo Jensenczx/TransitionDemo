@@ -28,26 +28,28 @@ public class TransitionHelper {
     private int mNextViewX;
     private int mNextViewY;
 
-    private float mScaleX;
-    private float mScaleY;
+    private float mScaleWidth;
+    private float mScaleHeight;
     private int mTranslationX;
     private int mTranslationY;
 
     private TimeInterpolator mTimeInterpolator;
     private Activity mActivity;
 
+
+    /**
+     * TranslationX，Y的值表示的是设置的View距离其顶部的移动位置
+     */
     public TransitionHelper(){
 
     }
 
     public void setNextView(View view) {
         mNextView = view;
-        infalteNextViewInfo();
     }
 
     public void setPreView(View view) {
         mPreView = view;
-        inflatePreViewInfo();
     }
 
     public void setTime(int time){
@@ -71,7 +73,7 @@ public class TransitionHelper {
         mPreViewHeight = mPreView.getHeight();
     }
 
-    private void infalteNextViewInfo(){
+    private void inflateNextViewInfo(){
         int[] locations = new int[2];
         mNextView.getLocationOnScreen(locations);
         mNextViewX = locations[0];
@@ -84,23 +86,30 @@ public class TransitionHelper {
         mNextView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
+                inflatePreViewInfo();
+                inflateNextViewInfo();
+
                 mNextView.getViewTreeObserver().removeOnPreDrawListener(this);
-                mScaleX = mPreViewX / (float) mNextViewX;
-                mScaleY = mPreViewY / (float) mNextViewY;
+
+                //cal the scale
+                mScaleWidth = mPreViewWidth / (float) mNextViewWidth;
+                mScaleHeight = mPreViewHeight / (float) mNextViewHeight;
+
+                //由于其存在一个放大效果，所以在计算偏移值的时候，要减去放大后增加的值
                 mTranslationX = mNextViewX - mPreViewX + (mNextViewWidth - mPreViewWidth) / 2;
                 mTranslationY = mNextViewY - mPreViewY + (mNextViewHeight - mPreViewHeight) / 2;
 
-                mNextView.setScaleX(mScaleX);
-                mNextView.setScaleY(mScaleY);
+                mNextView.setScaleX(mScaleWidth);
+                mNextView.setScaleY(mScaleHeight);
+
                 mNextView.setTranslationX(-mTranslationX);
                 mNextView.setTranslationY(-mTranslationY);
 
                 mNextView.animate()
                         .scaleX(1)
                         .scaleY(1)
-                        .translationX(mNextViewX)
-                        .translationY(mNextViewY)
-                        .setInterpolator(mTimeInterpolator == null ? DEFAULT_INTERPOLATOR : mTimeInterpolator)
+                        .translationX(0)
+                        .translationY(0)
                         .setDuration(mTime == -1 ? TIME : mTime)
                         .start();
                 return true;
@@ -132,11 +141,10 @@ public class TransitionHelper {
 
                     }
                 })
-                .scaleX(mScaleX)
-                .scaleY(mScaleY)
-                .translationX(mPreViewX)
-                .translationY(mPreViewY)
-                .setInterpolator(mTimeInterpolator == null ? DEFAULT_INTERPOLATOR : mTimeInterpolator)
+                .scaleX(mScaleWidth)
+                .scaleY(mScaleHeight)
+                .translationX(-mTranslationX)
+                .translationY(-mTranslationY)
                 .setDuration(mTime == -1 ? TIME : mTime)
                 .start();
     }

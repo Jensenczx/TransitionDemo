@@ -1,11 +1,13 @@
 package com.chenjensen.transitiondemo.transition;
 
+import java.util.ArrayList;
+
 /**
  * Created by chenjensen on 16/8/24.
  */
 public interface HTTransitionListener {
 
-    TransitionHelper getTransitionHelper();
+    ArrayList<TransitionHelper> getTransitionHelpers();
 
     void beforeDismiss();
 

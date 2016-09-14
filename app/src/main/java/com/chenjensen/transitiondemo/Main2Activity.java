@@ -7,11 +7,13 @@ import android.widget.ImageView;
 import com.chenjensen.transitiondemo.transition.HTTransitionListener;
 import com.chenjensen.transitiondemo.transition.TransitionHelper;
 
+import java.util.List;
+
 public class Main2Activity extends AppCompatActivity {
 
     private ImageView linearLayout;
     private static HTTransitionListener mListener;
-    private TransitionHelper helper;
+    private List<TransitionHelper> helpers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,10 +21,14 @@ public class Main2Activity extends AppCompatActivity {
         setContentView(R.layout.activity_main2);
         initView();
         if(mListener != null){
-            helper = mListener.getTransitionHelper();
-            helper.setActivity(this);
+            helpers = mListener.getTransitionHelpers();
         }
         startAnimation();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     public static void setListener(HTTransitionListener listener){
@@ -34,15 +40,26 @@ public class Main2Activity extends AppCompatActivity {
     }
 
     private void startAnimation() {
-       helper.setNextView(linearLayout);
-        helper.startEnterAnimation();
+        if(helpers == null)
+            return;
+        for(int i = 0; i < helpers.size(); i++){
+            TransitionHelper helper = helpers.get(i);
+            helper.setActivity(this);
+            helper.setNextView(linearLayout);
+            helper.startEnterAnimation();
+        }
     }
 
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK){
-            helper.exitAnimation();
+            if(helpers == null)
+                return true;
+            for(int i = 0; i < helpers.size(); i++){
+                TransitionHelper helper = helpers.get(i);
+                helper.exitAnimation();
+            }
         }
         return true;
     }
